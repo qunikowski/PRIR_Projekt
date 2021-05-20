@@ -5,7 +5,7 @@ import math
 input_file = sys.argv[1] if len(sys.argv) > 1 else 'data.txt'
 
 G = 6.6743015151515151515151515151515e-11
-dt = 1e4 # skok czasowy
+dt = 1000 # skok czasowy
 
 
 def acceleration(F,m):
@@ -22,9 +22,9 @@ def get_wersor(wektor):
     return wektor / math.sqrt(abs(wektor[0]**2 + wektor[1]**2 + wektor[2]**2))
 
 def get_wektor(body1, body2):
-    x = body1[1] - body2[1]
-    y = body1[2] - body2[2]
-    z = body1[3] - body2[3]
+    x = body2[1] - body1[1]
+    y = body2[2] - body1[2]
+    z = body2[3] - body1[3]
 
     return [x,y,z]
 
@@ -35,7 +35,7 @@ def read(input_file):
     data = []
     names = []
     with open(input_file) as f:
-        for line in f.readlines()[1:]:
+        for line in f.readlines()[2:]:
             bodies = []
             line = line.split()
             if len(line) < 8:
@@ -52,7 +52,6 @@ def main():
     NUM_ITER = int(sys.argv[1]) if len(sys.argv) > 1 else 100 #ilość iteracji
     names, data = read("data.txt") 
     N = len(names)
-    print(N)
     acceleration_table = np.zeros((N, N, 3))   
     for k in range(NUM_ITER):
         for i in range(N):
@@ -60,17 +59,16 @@ def main():
             for j in range(N):
                 if i==j:
                     continue
-                print("biorę " + str(i) + " i " + str(j) )
                 F = Force(data[i], data[j]) #wyznaczanie sily grawitacji miedzy i,j
                 a = acceleration(F, mass) #wyznaczanie przyspieszenia miedzy i,j
                 acceleration_table[i][j] = a #zapisywanie przyspieszeń do tablicy
 
         body_acceleration = np.zeros((N,3))
         for i in range(N):
-            for j in range(j):
-                body_acceleration[i][0] += acceleration_table[i][:][0].sum() #sumowanie przyspieszenia x
-                body_acceleration[i][1] += acceleration_table[i][:][1].sum() #sumowanie przyspieszenia y
-                body_acceleration[i][2] += acceleration_table[i][:][2].sum() #sumowanie przyspieszenia z
+            for j in range(N):
+                body_acceleration[i][0] += acceleration_table[i][j][0].sum() #sumowanie przyspieszenia x
+                body_acceleration[i][1] += acceleration_table[i][j][1].sum() #sumowanie przyspieszenia y
+                body_acceleration[i][2] += acceleration_table[i][j][2].sum() #sumowanie przyspieszenia z
 
         for i in range(N):
             data[i][1] += data[i][4] * dt + 0.5 * body_acceleration[i][0] * dt**2 # aktualizacja położenia x y z
@@ -80,10 +78,10 @@ def main():
             data[i][5] += body_acceleration[i][1] * dt
             data[i][6] += body_acceleration[i][2] * dt
 
-    f = open("output.txt", 'w')
-    f.write("x y z\n")
+    f = open("python_output.txt", 'w')
+
     for i in range(N):
-        f.write("" + str(data[i][1]) + "  " + str(data[i][2]) + "  " + str(data[i][3]) + "\n")
+        f.write(str(names[i]) + " " + str(data[i][0]) + " " + str(data[i][1]) + "  " + str(data[i][2]) + "  " + str(data[i][3]) + "  " + str(data[i][4]) + "  " + str(data[i][5]) + "  " + str(data[i][6]) + "\n")
     f.close()
 
 if __name__ == '__main__':
