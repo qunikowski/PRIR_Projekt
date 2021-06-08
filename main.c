@@ -129,7 +129,7 @@ int main(int argc, char**argv){
 
     stop_time = omp_get_wtime();
 
-    printf("Czas obliczania 100 iteracji: %f\n",stop_time-start_time);
+    printf("Czas obliczania %d iteracji: %f\n",NUM_ITER,stop_time-start_time);
     
     
     f = fopen(OUTPUT_FILE, "w");
